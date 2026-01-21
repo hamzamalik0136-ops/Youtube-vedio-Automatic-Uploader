@@ -1,0 +1,265 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "YT POST ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Share your idea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "338a56db-53e7-4231-8008-07a6b1960c5b",
+      "name": "On form submission",
+      "webhookId": "c354eded-93ee-4974-a469-32f938b49690"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Share your idea'] }}",
+        "options": {
+          "systemMessage": "You are an expert viral video concept writer creating hyper-detailed “found footage” prompts for AI-generated short cinematic videos.\nEach output must feel realistic, immersive, and emotionally gripping — like a true piece of found footage.\n\n📦 OUTPUT REQUIREMENTS\n\nLength: 500–2000 characters (balanced detail with brevity)\n\nMust be production-ready and comprehensive\n\nTone: cinematic, tense, and believable\n\nFormat: paragraph narrative, no bullet points\n\n🎯 MANDATORY ELEMENTS\n\nContext / Setting:\nChoose from: abandoned town / research facility / deep ocean base / remote forest / mountain outpost / empty subway / desert ruins / forgotten bunker\n\nObjects:\nflashlight / old camera / flickering light / damaged radio / steel door / wristwatch / notebook / broken drone\n\nSounds:\nlow-frequency hum / static noise / footsteps / metal creaking / distant alarm / wind / faint voice / mechanical whir\n\nCamera Style:\nhandheld, grainy, slightly shaky, timestamped, natural lighting, imperfect focus\n\n💬 Dialogue (MANDATORY)\n\nAll dialogue must be English only.\nKeep it natural, short, and reactive.\n\nExamples:\n\n“What was that sound?”\n\n“Did you see it move?”\n\n“It’s not supposed to be here.”\n\n“Run. Now.”\n\n“This can’t be happening.”\n\n🎨 INCLUDE\n\nHuman reactions, ambient sounds, and raw camera motion\n\nLighting shifts, focus pulls, zooms, and sound design\n\nViral short-form potential: tension, mystery, or discovery\n\n✍ WRITING STYLE\n\nWrite as a flowing paragraph — vivid, cinematic, time-stamped details.\nNo narration, no commentary, no “script” format.\nIt should feel like an unedited video clip someone just found.\n\n📘 EXAMPLE (≈120 words)\n\nGrainy 9:16 vertical footage. [00:07] — two explorers enter a dark research corridor. The floor is wet, reflecting dim emergency lights. A radio crackles faintly in the distance. “Keep recording,” one whispers. [00:15] — a metallic sound echoes. Camera shakes. “Who’s there?” The focus blurs, then sharpens on a steel door slowly opening by itself. [00:21] — static. A shadow moves past the lens. “Run!” someone shouts. [00:25] — the camera drops, showing only boots splashing through water before cutting to black.\n\n⚙ CRITICAL RULES\n\nLength: 500–2000 characters. Strictly enforced.\n\nLanguage: English only.\n\nInclude all elements: setting, technical specs, dialogue, sounds, timestamps, reactions.\n\nNo commentary or explanations.\n\nVerify output length: must fall between 500–2000 characters.\n\nParagraph format: no headings or bullet points.\n\nHashtags:\n\n#AIViralShort #Shorts #FoundFootage #CinematicAI"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "f9e9e936-41e8-40e3-8868-ec5844201322",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "d4f84aa5-118f-4103-b846-b8793ba25389",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BgjxgOrET5gfHUj4",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=based on this prompt {{ $json.output }}\ngive me a very short youtube video title under 20 characters and after the title compulsary add #viralshort #shorts #viral\nincluding all the hashtags given dont let the title exceed 100 characters."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "84a9501c-829a-4c7b-b77e-9b5047808f10",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer c45bc003add08d25668cbe00553f3926"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"callBackUrl\": \"https://your-domain.com/api/callback\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output }}\",\n    \"aspect_ratio\": \"landscape\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        912,
+        -16
+      ],
+      "id": "1fd3130d-1964-4bbc-a5b2-2b12bc52dbba",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        432,
+        192
+      ],
+      "id": "38c0cbd6-d041-49f5-908d-d86aa2feaf48",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BgjxgOrET5gfHUj4",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer c45bc003add08d25668cbe00553f3926"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1120,
+        -16
+      ],
+      "id": "836f9c1d-ef41-437f-bea7-5775d888581e",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        -16
+      ],
+      "id": "3bb8c01f-793a-4de8-ba23-a70868d2ffa7",
+      "name": "Upload a video"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "883021eb-2c74-44f0-b4e8-444d3d89f495",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14f61cede79b6647a12904e6c513fd9c6dc1ef5a750b19f5e14281dd3465cd0c"
+  },
+  "id": "HytZbwTq6tqjotQK",
+  "tags": []
+}
